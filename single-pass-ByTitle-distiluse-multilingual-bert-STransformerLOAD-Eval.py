@@ -1,6 +1,8 @@
 # single-pass-ByTitle-distiluse-multilingual-bert-STransformerLOAD-Eval.py
 # update:加评估方法，循环阈值进行比较 ，改为index
 # update:保存predicted_clusters
+# update:3.6 load FIX data
+
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 import numpy as np
@@ -121,13 +123,15 @@ def evaluate_clustering(true_clusters, predicted_clusters):
 # ==============================================================================
 
 # 加载SBERT模型
-model_path = '/root/data/NewsAthm/sentence-transformers/distiluse-base-multilingual-cased-v2'
+model_path = './sentence-transformers/distiluse-base-multilingual-cased-v2'
 # model_path = 'distiluse-base-multilingual-cased-v2'
 sbert_model = SentenceTransformer(model_path)
 
 
 # 加载数据
-data = pd.read_csv('Data231202-231211.csv')
+# data = pd.read_csv('Data231202-231211.csv')
+data = pd.read_csv('./Data231202-231211_FIX/Data231202_newDATA.csv')
+
 
 # 将日期转换为日期时间格式
 data['pub_time'] = pd.to_datetime(data['pub_time'])
@@ -218,12 +222,15 @@ for t in range(90, 100): # 阈值循环
         cluster_results.append({'date': date, 'clusters': daily_clusters})
 
     # 评估
-    true_clusters = [[0],[1],[2,16],[3],[4,6,22,50,73,87],[5],[7],[8,61],[9],[10,77],[11],[12],[13],
- [14,29,41,51,59,67,78,84],[15],[17],[18],[19],[20],[21,68],[23],[24],[25],[26],
- [27],[28],[30],[31],[32],[33],[34],[35,55],[36],[37],[38],[39],[40],[42],[43,64],
- [44],[45],[46],[47,53,88],[48],[49],[52],[54],[56],[57],[58],[60],[62],[63],[65],
- [66],[69],[70],[71],[72],[74],[75],[76],[79],[80],[81],[82],[83],[85],[86],
- [89],[90],[91],[92],[93],[94],[95]]
+ #    true_clusters = [[0],[1],[2,16],[3],[4,6,22,50,73,87],[5],[7],[8,61],[9],[10,77],[11],[12],[13],
+ # [14,29,41,51,59,67,78,84],[15],[17],[18],[19],[20],[21,68],[23],[24],[25],[26],
+ # [27],[28],[30],[31],[32],[33],[34],[35,55],[36],[37],[38],[39],[40],[42],[43,64],
+ # [44],[45],[46],[47,53,88],[48],[49],[52],[54],[56],[57],[58],[60],[62],[63],[65],
+ # [66],[69],[70],[71],[72],[74],[75],[76],[79],[80],[81],[82],[83],[85],[86],
+ # [89],[90],[91],[92],[93],[94],[95]]
+    
+    # update:3.6 新true_clusters for FIX
+    true_clusters = [[0],[1,4,6,23,28,41],[2],[3],[5],[7],[8],[9,31],[10],[11],[12],[13],[14],[15],[16],[18],[19],[20],[17,21,38],[22],[24],[25],[26],[27],[29],[30],[32],[33],[34],[35],[36],[37],[39],[40],[42],[43],[44],[45],[46],[47],[48,49],[50],[51],[52],[53],[54],[55],[56],[57],[58],[59],[60],[61],[62],[63],[64],[65],[66],[67],[68,70,74],[69],[71],[72],[73],[75],[76],[77],[78],[79],[80]]
     
     predicted_clusters = []
     for cluster in cluster_results[0]['clusters']: # 2023-12-02的簇s
@@ -242,7 +249,9 @@ for t in range(90, 100): # 阈值循环
     print("ARI:", ARI)
     # 打开文件并追加模式写入
     
-    with open('./results/distiluse-base-multilingual-cased-v2-results/EVAL-single-pass-ByTitle-STranformer-LOAD_results.txt', 'a') as file:
+    # with open('./results/distiluse-base-multilingual-cased-v2-results/EVAL-single-pass-ByTitle-STranformer-LOAD_results.txt', 'a') as file:
+    # update: 3.6 FIX
+    with open('./results_FIX/distiluse-base-multilingual-cased-v2-results/EVAL-single-pass-ByTitle-STranformer-LOAD_results.txt', 'a') as file:
     # with open('./results/angle-bert-base-uncased-nli-en-v1-results/EVAL-single-pass-ByBody_results.txt', 'a') as file: # ByBody
         file.write("threshold: " + str(threshold) + "\n")
         file.write("LOAD BY:" + "STransformer" + "\n")
@@ -257,7 +266,9 @@ for t in range(90, 100): # 阈值循环
 
 
     # file_name = f'single-pass-ByTitle_results_{threshold}.txt'
-    file_name = f'./results/distiluse-base-multilingual-cased-v2-results/index-single-pass-ByTitle-STranformer-LOAD_results_{threshold}.txt'
+    # file_name = f'./results/distiluse-base-multilingual-cased-v2-results/index-single-pass-ByTitle-STranformer-LOAD_results_{threshold}.txt'
+    # update: 3.6 FIX
+    file_name = f'./results_FIX/distiluse-base-multilingual-cased-v2-results/index-single-pass-ByTitle-STranformer-LOAD_results_{threshold}.txt'
 
     # 将聚类结果写入到新文件中
     write_to_file(file_name, cluster_results,predicted_clusters)
